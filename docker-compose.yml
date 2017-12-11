@@ -1,0 +1,18 @@
+version: "3"
+services:
+  postgres:
+    image: postgres:alpine
+    # ports:
+    #   - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: reservations
+  rso-customers:
+    image: rlamp/lairbnb-reservations
+    ports:
+      - 8082:8082
+    environment:
+      KUMULUZEE_DATASOURCES0_CONNECTIONURL: jdbc:postgresql://postgres:5432/reservations
+    depends_on:
+      - postgres
