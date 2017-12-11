@@ -28,7 +28,7 @@
             <plugin>
                 <groupId>com.kumuluz.ee</groupId>
                 <artifactId>kumuluzee-maven-plugin</artifactId>
-                <version>${kumuluzee.version}</version>
+                <version>${kumuluzee-maven.version}</version>
                 <executions>
                     <execution>
                         <id>package</id>
