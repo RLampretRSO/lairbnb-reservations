@@ -1,0 +1,44 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: reservations-deployment
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: reservations
+    spec:
+      containers:
+      - image: rlamp/lairbnb-reservations:latest
+        name: reservations
+        env:
+          - name: KUMULUZEE_DISCOVERY_CLUSTER
+            value: bluemix
+          - name: KUMULUZEE_DISCOVERY_ETCD_HOSTS
+            value: http://etcd:2379
+          - name: KUMULUZEE_CONFIG_ETCD_HOSTS
+            value: http://etcd:2379
+          - name: KUMULUZEE_DATASOURCES0_CONNECTIONURL
+            value: jdbc:postgresql://postgres-reservations:5432/reservations
+          - name: KUMULUZEE_SERVER_BASEURL
+            value: http://168.1.149.132:31398
+        ports:
+        - containerPort: 8082
+          name: server
+          protocol: TCP
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: reservations
+spec:
+  type: NodePort
+  ports:
+  - port: 8082
+    protocol: TCP
+    targetPort: 8082
+  selector:
+    app: reservations
