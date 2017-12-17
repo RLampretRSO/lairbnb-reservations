@@ -6,6 +6,7 @@ import com.kumuluz.ee.rest.utils.JPAUtils;
 import si.fri.rso.rlamp.lairbnb.reservations.models.Lair;
 import si.fri.rso.rlamp.lairbnb.reservations.models.Reservation;
 import si.fri.rso.rlamp.lairbnb.reservations.models.User;
+import si.fri.rso.rlamp.lairbnb.reservations.services.config.ReservationConfig;
 
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
@@ -23,6 +24,9 @@ public class ReservationService {
 
     @PersistenceContext
     private EntityManager em;
+
+    @Inject
+    private ReservationConfig reservationConfig;
 
     @Inject
     @DiscoverService(value = "lairbnb-users", version = "*", environment = "dev")
@@ -98,7 +102,7 @@ public class ReservationService {
     public User getUser(Integer userId) {
         // Calling with filter rather than users/{id} since this call
         // will make additional calls to other service
-        if (usersBaseUrl.isPresent()) {
+        if (reservationConfig.isUserServiceEnabled() && usersBaseUrl.isPresent()) {
             List<User> result = httpClient.target(usersBaseUrl.get() +
                     "/v1/users?filter=id:EQ:" + userId.toString())
                     .request().get(new GenericType<List<User>>() {
@@ -115,7 +119,7 @@ public class ReservationService {
         // Calling with filter rather than lairs/{id} since this call
         // will make additional calls to other service
 
-        if (lairsBaseUrl.isPresent()) {
+        if (reservationConfig.isLairServiceEnabled() && lairsBaseUrl.isPresent()) {
             List<Lair> result = httpClient.target(lairsBaseUrl.get() +
                     "/v1/lairs?filter=id:EQ:" + lairId.toString())
                     .request().get(new GenericType<List<Lair>>() {

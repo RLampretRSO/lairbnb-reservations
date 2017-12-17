@@ -18,3 +18,15 @@ kumuluzee:
       hosts: http://192.168.99.100:2379
     ttl: 20
     ping-interval: 15
+  config:
+    start-retry-delay-ms: 500
+    max-retry-delay-ms: 900000
+    etcd:
+      hosts: http://192.168.99.100:2379
+
+service-properties:
+  external-services:
+    user-service:
+      enabled: true
+    lair-service:
+      enabled: true
