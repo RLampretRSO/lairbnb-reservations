@@ -26,15 +26,15 @@ public class ReservationResource {
 
         @GET
         @Path("/all")
-        public Response getAllCustomers() {
-            List<Reservation> customers = reservBean.getAllReservations();
-            return Response.ok(customers).build();
+        public Response getAllReservations() {
+            List<Reservation> reservations = reservBean.getAllReservations();
+            return Response.ok(reservations).build();
         }
 
         @GET
-        public Response getCustomers() {
-            List<Reservation> customers = reservBean.getReservations(createQuery());
-            return Response.ok(customers).build();
+        public Response getReservations() {
+            List<Reservation> reservations = reservBean.getReservations(createQuery());
+            return Response.ok(reservations).build();
         }
 
         @GET
@@ -46,7 +46,7 @@ public class ReservationResource {
 
         @GET
         @Path("/{reservId}")
-        public Response getCustomer(@PathParam("reservId") Integer reservId) {
+        public Response getReservation(@PathParam("reservId") Integer reservId) {
             Reservation reserv = reservBean.getReservation(reservId);
             return reserv != null
                     ? Response.ok(reserv).build()
