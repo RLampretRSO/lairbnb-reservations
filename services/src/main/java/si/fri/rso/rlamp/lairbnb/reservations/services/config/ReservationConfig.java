@@ -9,10 +9,13 @@ import javax.enterprise.context.ApplicationScoped;
 @ConfigBundle("service-properties")
 public class ReservationConfig {
     @ConfigValue(value = "external-services.user-service.enabled", watch = true)
-    boolean userServiceEnabled;
+    private boolean userServiceEnabled;
 
     @ConfigValue(value = "external-services.lair-service.enabled", watch = true)
-    boolean lairServiceEnabled;
+    private boolean lairServiceEnabled;
+
+    @ConfigValue(value = "service.healthy", watch = true)
+    private boolean healthy;
 
     public boolean isUserServiceEnabled() {
         return userServiceEnabled;
@@ -28,5 +31,13 @@ public class ReservationConfig {
 
     public void setLairServiceEnabled(boolean lairServiceEnabled) {
         this.lairServiceEnabled = lairServiceEnabled;
+    }
+
+    public boolean isHealthy() {
+        return healthy;
+    }
+
+    public void setHealthy(boolean healthy) {
+        this.healthy = healthy;
     }
 }

@@ -23,8 +23,22 @@ kumuluzee:
     max-retry-delay-ms: 900000
     etcd:
       hosts: http://192.168.99.100:2379
+  health:
+    servlet:
+      mapping: /health
+      enabled: true
+    checks:
+      data-source-health-check:
+        jndi-name: jdbc/ReservationsDS
+      etcd-health-check:
+        connection-url: http://192.168.99.100:2379/health
+      http-health-check:
+        - connection-url: http://192.168.99.100:8080/v1/users
+        - connection-url: http://192.168.99.100:8081/v1/lairs
 
 service-properties:
+  service:
+    healthy: true
   external-services:
     user-service:
       enabled: true
