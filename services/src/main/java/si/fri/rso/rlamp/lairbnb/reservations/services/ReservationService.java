@@ -3,6 +3,9 @@ package si.fri.rso.rlamp.lairbnb.reservations.services;
 import com.kumuluz.ee.discovery.annotations.DiscoverService;
 import com.kumuluz.ee.rest.beans.QueryParameters;
 import com.kumuluz.ee.rest.utils.JPAUtils;
+import org.eclipse.microprofile.faulttolerance.CircuitBreaker;
+import org.eclipse.microprofile.faulttolerance.Fallback;
+import org.eclipse.microprofile.faulttolerance.Timeout;
 import si.fri.rso.rlamp.lairbnb.reservations.models.Lair;
 import si.fri.rso.rlamp.lairbnb.reservations.models.Reservation;
 import si.fri.rso.rlamp.lairbnb.reservations.models.User;
@@ -16,6 +19,7 @@ import javax.transaction.Transactional;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.GenericType;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,6 +28,9 @@ public class ReservationService {
 
     @PersistenceContext
     private EntityManager em;
+
+    @Inject
+    ReservationService reservationBean;
 
     @Inject
     private ReservationConfig reservationConfig;
@@ -64,9 +71,9 @@ public class ReservationService {
         Reservation reserv = em.find(Reservation.class, reservId);
 
         if (reserv != null) {
-            reserv.setHost(this.getUser(reserv.getHostUserId()));
-            reserv.setUser(this.getUser(reserv.getUserUserId()));
-            reserv.setLair(this.getLair(reserv.getLairId()));
+            reserv.setHost(reservationBean.getUser(reserv.getHostUserId()));
+            reserv.setUser(reservationBean.getUser(reserv.getUserUserId()));
+            reserv.setLair(reservationBean.getLair(reserv.getLairId()));
         }
 
         return reserv;
@@ -78,7 +85,7 @@ public class ReservationService {
         em.persist(reserv);
 
         if (notificationsBaseUrl.isPresent()) {
-            User user = this.getUser(reserv.getUserUserId());
+            User user = reservationBean.getUser(reserv.getUserUserId());
             if (user != null) {
                 httpClient.target(notificationsBaseUrl.get() +
                         String.format("/v1/notify?type=reservation&id=%d&addr=%s", reserv.getId(), user.getEmailAddress()))
@@ -112,6 +119,9 @@ public class ReservationService {
         return true;
     }
 
+    @CircuitBreaker(requestVolumeThreshold = 2)
+    @Fallback(fallbackMethod = "getUserFallback")
+    @Timeout(value = 2, unit = ChronoUnit.SECONDS)
     public User getUser(Integer userId) {
         // Calling with filter rather than users/{id} since this call
         // will make additional calls to other service
@@ -128,10 +138,18 @@ public class ReservationService {
         return null;
     }
 
+    public User getUserFallback(Integer userId) {
+        User u = new User();
+        u.setId(userId);
+        return u;
+    }
+
+    @CircuitBreaker(requestVolumeThreshold = 2)
+    @Fallback(fallbackMethod = "getLairFallback")
+    @Timeout(value = 2, unit = ChronoUnit.SECONDS)
     public Lair getLair(Integer lairId) {
         // Calling with filter rather than lairs/{id} since this call
         // will make additional calls to other service
-
         if (reservationConfig.isLairServiceEnabled() && lairsBaseUrl.isPresent()) {
             List<Lair> result = httpClient.target(lairsBaseUrl.get() +
                     "/v1/lairs?filter=id:EQ:" + lairId.toString())
@@ -143,5 +161,11 @@ public class ReservationService {
             }
         }
         return null;
+    }
+
+    public Lair getLairFallback(Integer lairId) {
+        Lair l = new Lair();
+        l.setId(lairId);
+        return  l;
     }
 }
