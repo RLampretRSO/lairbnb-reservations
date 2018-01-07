@@ -1,5 +1,6 @@
 package si.fri.rso.rlamp.reservations.api.v1.resources;
 
+import com.kumuluz.ee.logs.cdi.Log;
 import com.kumuluz.ee.rest.beans.QueryParameters;
 import si.fri.rso.rlamp.lairbnb.reservations.models.Reservation;
 import si.fri.rso.rlamp.lairbnb.reservations.services.ReservationService;
@@ -13,6 +14,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.List;
 
+@Log
 @RequestScoped
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
