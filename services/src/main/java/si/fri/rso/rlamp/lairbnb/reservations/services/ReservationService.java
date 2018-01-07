@@ -36,6 +36,10 @@ public class ReservationService {
     @DiscoverService(value = "lairbnb-lairs", version = "*", environment = "dev")
     private Optional<String> lairsBaseUrl;
 
+    @Inject
+    @DiscoverService(value = "lairbnb-notifications", version = "*", environment = "dev")
+    private Optional<String> notificationsBaseUrl;
+
     private Client httpClient = ClientBuilder.newClient();;
 
     public List<Reservation> getAllReservations() {
@@ -72,6 +76,15 @@ public class ReservationService {
     public Reservation createReservation(Reservation reserv) {
         if (reserv == null) return null;
         em.persist(reserv);
+
+        if (notificationsBaseUrl.isPresent()) {
+            User user = this.getUser(reserv.getUserUserId());
+            if (user != null) {
+                httpClient.target(notificationsBaseUrl.get() +
+                        String.format("/v1/notify?type=reservation&id=%d&addr=%s", reserv.getId(), user.getEmailAddress()))
+                        .request().post(null);
+            }
+        }
 
         return reserv;
     }
