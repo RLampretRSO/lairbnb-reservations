@@ -2,6 +2,8 @@ package si.fri.rso.rlamp.reservations.api.v1.resources;
 
 import com.kumuluz.ee.logs.cdi.Log;
 import com.kumuluz.ee.rest.beans.QueryParameters;
+import org.eclipse.microprofile.metrics.annotation.Metered;
+import org.eclipse.microprofile.metrics.annotation.Timed;
 import si.fri.rso.rlamp.lairbnb.reservations.models.Reservation;
 import si.fri.rso.rlamp.lairbnb.reservations.services.ReservationService;
 
@@ -48,6 +50,8 @@ public class ReservationResource {
 
         @GET
         @Path("/{reservId}")
+        @Metered(name = "requests")
+        @Timed(name = "long_lasting_method")
         public Response getReservation(@PathParam("reservId") Integer reservId) {
             Reservation reserv = reservBean.getReservation(reservId);
             return reserv != null
