@@ -50,8 +50,8 @@ public class ReservationResource {
 
         @GET
         @Path("/{reservId}")
-        @Metered(name = "requests")
-        @Timed(name = "long_lasting_method")
+        @Metered(name = "getReservation_requests")
+        @Timed(name = "getReservation_timed")
         public Response getReservation(@PathParam("reservId") Integer reservId) {
             Reservation reserv = reservBean.getReservation(reservId);
             return reserv != null
