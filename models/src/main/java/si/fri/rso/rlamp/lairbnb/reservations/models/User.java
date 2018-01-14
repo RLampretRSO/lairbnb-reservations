@@ -99,11 +99,11 @@ public class User {
         this.creditCardNumber = creditCardNumber;
     }
 
-    public boolean isHost() {
+    public Boolean isHost() {
         return isHost;
     }
 
-    public void setHost(boolean host) {
+    public void setHost(Boolean host) {
         isHost = host;
     }
 
